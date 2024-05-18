@@ -1,0 +1,106 @@
+{
+  "launchSite": {
+    "id": "string",
+    "name": "string",
+    "location": {
+      "latitude": "float",
+      "longitude": "float",
+      "altitude": "float"
+    },
+    "powerSource": "string"
+  },
+  "weatherData": {
+    "temperature": "float",
+    "humidity": "float",
+    "windSpeed": "float",
+    "windDirection": "float",
+    "lightningDetected": "boolean",
+  },
+  "launchVehicle": {
+    "id": "string",
+    "type": "string",
+    "status": {
+      "health": "string",
+      "position": {
+        "latitude": "float",
+        "longitude": "float",
+        "altitude": "float"
+      },
+      "telemetry": {
+        "pressure": "float",
+        "voltage": "float",
+        "heartbeat": "boolean",
+        "fuelConsumption": "float",
+        "estimatedTimeToFull": "float"
+      },
+      "payload": {
+        "type": "string",
+        "weight": "float",
+        "rfFrequencies": ["float"]
+      }
+    }
+  },
+  "communicationSystems": {
+    "emergencyComms": {
+      "status": "string",
+      "reroutePlan": {
+        "primary": "string",
+        "backup": "string"
+      }
+    },
+    "astronautComms": {
+      "status": "string",
+      "reroutePlan": {
+        "primary": "string",
+        "backup": "string"
+      }
+    },
+    "telemetryComms": {
+      "status": "string",
+      "reroutePlan": {
+        "primary": "string",
+        "backup": "string"
+      }
+    }
+  },
+  "security": {
+    "protocol": "string",
+    "encryptionLevel": "string",
+    "accessControl": {
+      "nasa": "boolean",
+      "faa": "boolean",
+      "safetyAgency": "boolean",
+      "aerospaceCompany": "boolean"
+    }
+  },
+  "padInfrastructure": {
+    "pneumaticPressurization": {
+      "pressure": "float"
+    },
+    "hydraulicSystems": {
+      "pressure": "float"
+    },
+    "battery": {
+      "wattage": "float"
+    },
+    "fuelTank": {
+      "fullLevel": "float",
+      "pressure": "float",
+      "wattsLevel": "float"
+    },
+    "pressureTank": {
+      "pressure": "float"
+    }
+  },
+  "operationalStatus": {
+    "currentWindowEndTime": "datetime",
+    "systemRangeCheck": "boolean"
+  },
+  "events": [
+    {
+      "timestamp": "datetime",
+      "eventType": "string",
+      "details": "string"
+    }
+  ]
+}
