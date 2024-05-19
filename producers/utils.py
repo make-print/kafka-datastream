@@ -36,6 +36,9 @@ def read_current_weather(file_path):
     return weather_data
 
 
+import json
+
+
 def read_hourly_forecast(file_path):
     """
     Read the hourly weather forecast from a JSON file.
@@ -45,30 +48,46 @@ def read_hourly_forecast(file_path):
     with open(file_path, 'r') as file:
         data = json.load(file)
 
-    hourly_forecast = data["hourly"]
+    hourly_forecast = data.get("hourly", [])
 
     forecasts = []
     for forecast in hourly_forecast:
         hourly_data = {
-            "timestamp": forecast["dt"],
-            "temperature": forecast["temp"],
-            "pressure": forecast["pressure"],
-            "humidity": forecast["humidity"],
-            "dewPoint": forecast["dew_point"],
-            "uvIndex": forecast["uvi"],
-            "clouds": forecast["clouds"],
-            "visibility": forecast["visibility"],
-            "windSpeed": forecast["wind_speed"],
-            "windDirection": forecast["wind_deg"],
+            "timestamp": forecast.get("dt"),
+            "temperature": forecast.get("temp"),
+            "feels_like": forecast.get("feels_like"),
+            "pressure": forecast.get("pressure"),
+            "humidity": forecast.get("humidity"),
+            "dewPoint": forecast.get("dew_point"),
+            "uvIndex": forecast.get("uvi"),
+            "clouds": forecast.get("clouds"),
+            "visibility": forecast.get("visibility"),
+            "windSpeed": forecast.get("wind_speed"),
+            "windDirection": forecast.get("wind_deg"),
             "windGust": forecast.get("wind_gust", None),  # wind_gust might be optional
-            "weatherMain": forecast["weather"][0]["main"],
-            "weatherDescription": forecast["weather"][0]["description"],
+            "weatherMain": forecast["weather"][0].get("main"),
+            "weatherDescription": forecast["weather"][0].get("description"),
             "rainProb": forecast.get("pop", None),  # Probability of precipitation
             "rain1hVolume": forecast.get("rain", {}).get("1h", None)  # Rain volume for last hour
         }
         forecasts.append(hourly_data)
 
     return forecasts
+
+
+import requests
+import json
+url = "https://us-central1-aiot-fit-xlab.cloudfunctions.net/launchtwin"
+payload = json.dumps({
+  "action": "launchtwin",
+  "function": "getpayload",
+  "packageid": "1"
+})
+headers = {
+  'Content-Type': 'application/json'
+}
+response = requests.request("POST", url, headers=headers, data=payload)
+print(response.text)
 
 
 def read_config():
