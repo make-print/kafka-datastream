@@ -12,7 +12,8 @@ producer_scripts = [
     "producers/security_producer.py",
     "producers/pad_infrastructure_producer.py",
     "producers/operational_status_producer.py",
-    "producers/events_producer.py"
+    "producers/events_producer.py",
+    "producers/weather_forecast_hrs_producer.py"
 ]
 
 topics = [
@@ -24,7 +25,8 @@ topics = [
     "security",
     "padInfrastructure",
     "operationalStatus",
-    "events"
+    "events",
+    "weatherForecastHrs"
 ]
 
 processes = []
