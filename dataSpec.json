@@ -14,7 +14,7 @@
     "humidity": "float",
     "windSpeed": "float",
     "windDirection": "float",
-    "lightningDetected": "boolean",
+    "lightningDetected": "boolean"
   },
   "launchVehicle": {
     "id": "string",
@@ -32,11 +32,22 @@
         "heartbeat": "boolean",
         "fuelConsumption": "float",
         "estimatedTimeToFull": "float"
+      }
+    }
+  },
+  "payload": {
+    "id": "string",
+    "type": "string",
+    "status": {
+      "health": "string",
+      "position": {
+        "latitude": "float",
+        "longitude": "float",
+        "altitude": "float"
       },
-      "payload": {
-        "type": "string",
-        "weight": "float",
-        "rfFrequencies": ["float"]
+      "telemetry": {
+        "rfFrequencies": ["float"],
+        "weight": "float"
       }
     }
   },
@@ -93,12 +104,12 @@
     }
   },
   "operationalStatus": {
-    "currentWindowEndTime": "datetime",
+    "currentWindowEndTime": "string",
     "systemRangeCheck": "boolean"
   },
   "events": [
     {
-      "timestamp": "datetime",
+      "timestamp": "string",
       "eventType": "string",
       "details": "string"
     }
