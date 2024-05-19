@@ -5,6 +5,55 @@ import json
 import random
 from utils import read_config
 
+# Initialize the state
+state = {
+    "pneumaticPressurization": {
+        "pressure": 100.0
+    },
+    "hydraulicSystems": {
+        "pressure": 150.0
+    },
+    "battery": {
+        "wattage": 5000.0
+    },
+    "fuelTank": {
+        "fullLevel": 90.0,
+        "pressure": 100.0,
+        "wattsLevel": 2500.0
+    },
+    "pressureTank": {
+        "pressure": 100.0
+    }
+}
+
+
+def update_state(state):
+    # Update pneumaticPressurization pressure
+    state["pneumaticPressurization"]["pressure"] += random.uniform(-0.5, 0.5)
+    state["pneumaticPressurization"]["pressure"] = max(90.0, min(110.0, state["pneumaticPressurization"]["pressure"]))
+
+    # Update hydraulicSystems pressure
+    state["hydraulicSystems"]["pressure"] += random.uniform(-0.5, 0.5)
+    state["hydraulicSystems"]["pressure"] = max(140.0, min(160.0, state["hydraulicSystems"]["pressure"]))
+
+    # Update battery wattage
+    state["battery"]["wattage"] += random.uniform(-50.0, 50.0)
+    state["battery"]["wattage"] = max(4500.0, min(5500.0, state["battery"]["wattage"]))
+
+    # Update fuelTank levels and pressure
+    state["fuelTank"]["fullLevel"] += random.uniform(-0.2, 0.2)
+    state["fuelTank"]["fullLevel"] = max(80.0, min(100.0, state["fuelTank"]["fullLevel"]))
+    state["fuelTank"]["pressure"] += random.uniform(-0.5, 0.5)
+    state["fuelTank"]["pressure"] = max(90.0, min(110.0, state["fuelTank"]["pressure"]))
+    state["fuelTank"]["wattsLevel"] += random.uniform(-50.0, 50.0)
+    state["fuelTank"]["wattsLevel"] = max(2000.0, min(3000.0, state["fuelTank"]["wattsLevel"]))
+
+    # Update pressureTank pressure
+    state["pressureTank"]["pressure"] += random.uniform(-0.5, 0.5)
+    state["pressureTank"]["pressure"] = max(90.0, min(110.0, state["pressureTank"]["pressure"]))
+
+    return state
+
 
 def run_producer():
     config = read_config()
@@ -22,25 +71,9 @@ def run_producer():
     try:
         while True:
             key = "padInfrastructure"
-            value = {
-                "pneumaticPressurization": {
-                    "pressure": round(random.uniform(90.0, 110.0), 2)
-                },
-                "hydraulicSystems": {
-                    "pressure": round(random.uniform(140.0, 160.0), 2)
-                },
-                "battery": {
-                    "wattage": round(random.uniform(4500.0, 5500.0), 2)
-                },
-                "fuelTank": {
-                    "fullLevel": round(random.uniform(80.0, 100.0), 2),
-                    "pressure": round(random.uniform(90.0, 110.0), 2),
-                    "wattsLevel": round(random.uniform(2000.0, 3000.0), 2)
-                },
-                "pressureTank": {
-                    "pressure": round(random.uniform(90.0, 110.0), 2)
-                }
-            }
+            global state
+            state = update_state(state)
+            value = state
             producer.produce(topic, key=key, value=json.dumps(value))
             print(f"Produced message to topic {topic}: key = {key:12} value = {json.dumps(value):12}")
 

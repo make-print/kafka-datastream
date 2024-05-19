@@ -6,6 +6,48 @@ import random
 from datetime import datetime
 from utils import read_config
 
+# Define event types and their details
+event_templates = [
+    {
+        "eventType": "System Check",
+        "details": [
+            "Checking communication systems.",
+            "Running diagnostics on hydraulic systems.",
+            "Performing pre-launch system integrity checks.",
+            "Verifying fuel levels and pressures."
+        ]
+    },
+    {
+        "eventType": "Launch",
+        "details": [
+            "Ignition sequence start.",
+            "Liftoff! We have a liftoff.",
+            "Stage separation confirmed.",
+            "Payload deployment successful."
+        ]
+    },
+    {
+        "eventType": "Abort",
+        "details": [
+            "Launch abort sequence initiated.",
+            "Mission control has called for an abort.",
+            "Engine shutdown and abort procedures active.",
+            "Safe abort confirmed, all systems nominal."
+        ]
+    }
+]
+
+
+def generate_event():
+    event_template = random.choice(event_templates)
+    event_detail = random.choice(event_template["details"])
+    event = {
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "eventType": event_template["eventType"],
+        "details": event_detail
+    }
+    return event
+
 
 def run_producer():
     config = read_config()
@@ -23,13 +65,7 @@ def run_producer():
     try:
         while True:
             key = "events"
-            value = [
-                {
-                    "timestamp": datetime.utcnow().isoformat() + "Z",
-                    "eventType": random.choice(["System Check", "Launch", "Abort"]),
-                    "details": "Event details go here."
-                }
-            ]
+            value = [generate_event()]
             producer.produce(topic, key=key, value=json.dumps(value))
             print(f"Produced message to topic {topic}: key = {key:12} value = {json.dumps(value):12}")
 

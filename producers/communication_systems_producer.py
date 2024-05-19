@@ -5,6 +5,45 @@ import json
 import random
 from utils import read_config
 
+# Initialize the state
+state = {
+    "emergencyComms": {
+        "status": "Active",
+        "reroutePlan": {
+            "primary": "Satellite",
+            "backup": "Ground"
+        }
+    },
+    "astronautComms": {
+        "status": "Active",
+        "reroutePlan": {
+            "primary": "Satellite",
+            "backup": "Ground"
+        }
+    },
+    "telemetryComms": {
+        "status": "Active",
+        "reroutePlan": {
+            "primary": "Satellite",
+            "backup": "Ground"
+        }
+    }
+}
+
+
+def update_status(status):
+    # Occasionally change the status
+    if random.random() < 0.1:  # 10% chance to change the status
+        return "Inactive" if status == "Active" else "Active"
+    return status
+
+
+def update_state(state):
+    state["emergencyComms"]["status"] = update_status(state["emergencyComms"]["status"])
+    state["astronautComms"]["status"] = update_status(state["astronautComms"]["status"])
+    state["telemetryComms"]["status"] = update_status(state["telemetryComms"]["status"])
+    return state
+
 
 def run_producer():
     config = read_config()
@@ -22,29 +61,9 @@ def run_producer():
     try:
         while True:
             key = "communicationSystems"
-            value = {
-                "emergencyComms": {
-                    "status": random.choice(["Active", "Inactive"]),
-                    "reroutePlan": {
-                        "primary": "Satellite",
-                        "backup": "Ground"
-                    }
-                },
-                "astronautComms": {
-                    "status": random.choice(["Active", "Inactive"]),
-                    "reroutePlan": {
-                        "primary": "Satellite",
-                        "backup": "Ground"
-                    }
-                },
-                "telemetryComms": {
-                    "status": random.choice(["Active", "Inactive"]),
-                    "reroutePlan": {
-                        "primary": "Satellite",
-                        "backup": "Ground"
-                    }
-                }
-            }
+            global state
+            state = update_state(state)
+            value = state
             producer.produce(topic, key=key, value=json.dumps(value))
             print(f"Produced message to topic {topic}: key = {key:12} value = {json.dumps(value):12}")
 

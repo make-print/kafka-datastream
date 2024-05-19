@@ -6,6 +6,45 @@ import random
 from datetime import datetime, timedelta
 from utils import read_config
 
+# Initialize state
+state = {
+    "systemRangeCheck": True,
+    "operationalWindows": [
+        {
+            "startTime": datetime.utcnow(),
+            "endTime": datetime.utcnow() + timedelta(hours=1),
+            "status": "Scheduled"
+        }
+    ],
+    "systems": {
+        "comms": "Operational",
+        "power": "Operational",
+        "propulsion": "Operational",
+        "navigation": "Operational"
+    }
+}
+
+
+def update_state(state):
+    # Randomly change system statuses to simulate issues and recoveries
+    for system in state["systems"]:
+        if random.random() < 0.1:  # 10% chance to change status
+            state["systems"][system] = random.choice(["Operational", "Degraded", "Offline"])
+
+    # Update the operational window
+    if state["operationalWindows"]:
+        current_window = state["operationalWindows"][-1]
+        if datetime.utcnow() > current_window["endTime"]:
+            # End the current window and start a new one
+            new_start_time = datetime.utcnow()
+            state["operationalWindows"].append({
+                "startTime": new_start_time,
+                "endTime": new_start_time + timedelta(hours=1),
+                "status": "Scheduled"
+            })
+
+    return state
+
 
 def run_producer():
     config = read_config()
@@ -23,10 +62,24 @@ def run_producer():
     try:
         while True:
             key = "operationalStatus"
+            global state
+            state = update_state(state)
+
+            current_window = state["operationalWindows"][-1]
             value = {
-                "currentWindowEndTime": (datetime.utcnow() + timedelta(hours=1)).isoformat() + "Z",
-                "systemRangeCheck": random.choice([True, False])
+                "currentWindowEndTime": current_window["endTime"].isoformat() + "Z",
+                "systemRangeCheck": state["systemRangeCheck"],
+                "systems": state["systems"],
+                "operationalWindows": [
+                    {
+                        "startTime": win["startTime"].isoformat() + "Z",
+                        "endTime": win["endTime"].isoformat() + "Z",
+                        "status": win["status"]
+                    }
+                    for win in state["operationalWindows"]
+                ]
             }
+
             producer.produce(topic, key=key, value=json.dumps(value))
             print(f"Produced message to topic {topic}: key = {key:12} value = {json.dumps(value):12}")
 

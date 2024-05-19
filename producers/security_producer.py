@@ -3,8 +3,39 @@ import time
 import signal
 import json
 import random
+from datetime import datetime, timedelta
 from utils import read_config
 
+# Initialize state
+state = {
+    "protocol": "AES",
+    "encryptionLevel": "256-bit",
+    "accessControl": {
+        "nasa": True,
+        "faa": False,
+        "safetyAgency": True,
+        "aerospaceCompany": False
+    },
+    "lastProtocolChange": datetime.utcnow()
+}
+
+def update_state(state):
+    # Periodically change the protocol every hour
+    if datetime.utcnow() - state["lastProtocolChange"] > timedelta(hours=1):
+        state["protocol"] = random.choice(["AES", "RSA", "3DES"])
+        state["lastProtocolChange"] = datetime.utcnow()
+
+    # Access control settings should remain stable but can change occasionally
+    if random.random() < 0.05:  # 5% chance to change access control
+        state["accessControl"]["nasa"] = random.choice([True, False])
+    if random.random() < 0.05:
+        state["accessControl"]["faa"] = random.choice([True, False])
+    if random.random() < 0.05:
+        state["accessControl"]["safetyAgency"] = random.choice([True, False])
+    if random.random() < 0.05:
+        state["accessControl"]["aerospaceCompany"] = random.choice([True, False])
+
+    return state
 
 def run_producer():
     config = read_config()
@@ -22,15 +53,12 @@ def run_producer():
     try:
         while True:
             key = "security"
+            global state
+            state = update_state(state)
             value = {
-                "protocol": random.choice(["AES", "RSA", "3DES"]),
-                "encryptionLevel": random.choice(["128-bit", "256-bit"]),
-                "accessControl": {
-                    "nasa": random.choice([True, False]),
-                    "faa": random.choice([True, False]),
-                    "safetyAgency": random.choice([True, False]),
-                    "aerospaceCompany": random.choice([True, False])
-                }
+                "protocol": state["protocol"],
+                "encryptionLevel": state["encryptionLevel"],  # Assuming encryption level doesn't change
+                "accessControl": state["accessControl"]
             }
             producer.produce(topic, key=key, value=json.dumps(value))
             print(f"Produced message to topic {topic}: key = {key:12} value = {json.dumps(value):12}")
@@ -40,7 +68,6 @@ def run_producer():
     except Exception as e:
         print(f"An error occurred: {e}")
         producer.flush()
-
 
 if __name__ == "__main__":
     run_producer()
