@@ -30,7 +30,14 @@ def run_producer():
                     "longitude": -80.648,
                     "altitude": 3.0
                 },
-                "powerSource": "Solar"
+                "powerSource": {
+                    "type": "Solar",
+                    "wattage": round(random.uniform(1000.0, 5000.0), 2),
+                    "in_volt": round(random.uniform(200.0, 240.0), 2),
+                    "out_volt": round(random.uniform(110.0, 120.0), 2),
+                    "current": round(random.uniform(10.0, 50.0), 2),
+                    "frequency": round(random.uniform(50.0, 60.0), 2)
+                }
             }
             producer.produce(topic, key=key, value=json.dumps(value))
             print(f"Produced message to topic {topic}: key = {key:12} value = {json.dumps(value):12}")

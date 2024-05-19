@@ -7,7 +7,14 @@
       "longitude": "float",
       "altitude": "float"
     },
-    "powerSource": "string"
+    "powerSource": {
+      "type": "string",
+      "wattage": "float",
+      "in_volt": "float",
+      "out_volt": "float",
+      "current": "float",
+      "frequency": "float"
+    }
   },
   "weatherData": {
     "temperature": "float",
@@ -30,8 +37,15 @@
         "pressure": "float",
         "voltage": "float",
         "heartbeat": "boolean",
+        "temperature ": "float",
         "fuelConsumption": "float",
-        "estimatedTimeToFull": "float"
+        "estimatedTimeToFull": "float",
+        "fuleLevel": {
+          "CH4": "float",
+          // Methane (0.0 - 1.0)
+          "LOX": "float"
+          // Liquid Oxygen (0.0 - 1.0)
+        }
       }
     }
   },
@@ -46,8 +60,17 @@
         "altitude": "float"
       },
       "telemetry": {
-        "rfFrequencies": ["float"],
-        "weight": "float"
+        "rfFrequencies": [
+          "float"
+        ],
+        "temperature ": "float",
+        "weight": "float",
+        "fuleLevel": {
+          "CH4": "float",
+          // Methane (0.0 - 1.0)
+          "LOX": "float"
+          // Liquid Oxygen (0.0 - 1.0)
+        }
       }
     }
   },
