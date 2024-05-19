@@ -1,6 +1,7 @@
-from confluent_kafka.admin import AdminClient, NewTopic
-from confluent_kafka import KafkaException
+import requests
 import json
+from confluent_kafka import KafkaException
+from confluent_kafka.admin import AdminClient, NewTopic
 
 
 def read_current_weather(file_path):
@@ -34,9 +35,6 @@ def read_current_weather(file_path):
     }
 
     return weather_data
-
-
-import json
 
 
 def read_hourly_forecast(file_path):
@@ -73,21 +71,6 @@ def read_hourly_forecast(file_path):
         forecasts.append(hourly_data)
 
     return forecasts
-
-
-import requests
-import json
-url = "https://us-central1-aiot-fit-xlab.cloudfunctions.net/launchtwin"
-payload = json.dumps({
-  "action": "launchtwin",
-  "function": "getpayload",
-  "packageid": "1"
-})
-headers = {
-  'Content-Type': 'application/json'
-}
-response = requests.request("POST", url, headers=headers, data=payload)
-print(response.text)
 
 
 def read_config():
@@ -127,3 +110,58 @@ def ensure_topics_exist(topics: list):
                 print(f"Topic {topic} created")
             except KafkaException as e:
                 print(f"Failed to create topic {topic}: {e}")
+
+
+def get_payload_data():
+    """
+    Get the payload data from the launch twin API.
+    :return: List of payload data
+    """
+    url = "https://us-central1-aiot-fit-xlab.cloudfunctions.net/launchtwin"
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    all_payloads = []
+
+    for package_id in range(1, 6):
+        payload = json.dumps({
+            "action": "launchtwin",
+            "function": "getpayload",
+            "packageid": str(package_id)
+        })
+        response = requests.post(url, headers=headers, data=payload)
+        response_data = response.json()  # Assuming the response is in JSON format
+        if 'response' in response_data:
+            all_payloads.extend(response_data['response'])  # Extend the list with the payload objects
+
+    return all_payloads
+
+
+def get_vehicle_data():
+    """
+    Get the vehicle data from the launch twin API.
+    :return:  List of vehicle data
+    """
+
+    url = "https://us-central1-aiot-fit-xlab.cloudfunctions.net/launchtwin"
+    headers = {
+        'Content-Type': 'application/json'
+    }
+
+    vehicle = json.dumps({
+        "action": "launchtwin",
+        "function": "getvehicle",
+        "vehicleid": "Starship-SN15"
+    })
+    response = requests.post(url, headers=headers, data=vehicle)
+    response_data = response.json()  # Assuming the response is in JSON format
+    if 'response' in response_data:
+        return response_data['response'][0]
+
+
+# Test the function
+if __name__ == "__main__":
+    # payloads = get_payload_data()
+    # print(json.dumps(payloads, indent=2))
+    vehicle = get_vehicle_data()
+    print(json.dumps(vehicle, indent=2))

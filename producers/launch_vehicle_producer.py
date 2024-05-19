@@ -3,7 +3,7 @@ import time
 import signal
 import json
 import random
-from utils import read_config
+from utils import read_config, get_vehicle_data
 
 
 def run_producer():
@@ -22,25 +22,49 @@ def run_producer():
     try:
         while True:
             key = "launchVehicle"
-            value = {
-                "id": "LV456",
-                "type": "Rocket",
+
+            # Fetch vehicle data
+            fetched_data = get_vehicle_data()
+
+            # Generate additional data
+            generated_data = {
                 "status": {
-                    "health": random.choice(["Good", "Fair", "Poor"]),
                     "position": {
                         "latitude": 28.5721,
                         "longitude": -80.648,
                         "altitude": round(random.uniform(0.0, 100.0), 2)
                     },
                     "telemetry": {
-                        "pressure": round(random.uniform(900.0, 1100.0), 2),
-                        "voltage": round(random.uniform(20.0, 30.0), 2),
-                        "heartbeat": random.choice([True, False]),
-                        "fuelConsumption": round(random.uniform(0.0, 10.0), 2),
                         "estimatedTimeToFull": round(random.uniform(0.0, 3600.0), 2)
                     }
                 }
             }
+
+            # Merge fetched and generated data
+            value = {
+                "id": fetched_data.get("id", "LV456"),
+                "type": fetched_data.get("type", "Rocket"),
+                "status": {
+                    "health": fetched_data.get("health", random.choice(["Good", "Fair", "Poor"])),
+                    "position": {
+                        "latitude": float(fetched_data.get("lat", generated_data["status"]["position"]["latitude"])),
+                        "longitude": float(fetched_data.get("lon", generated_data["status"]["position"]["longitude"])),
+                        "altitude": float(fetched_data.get("alt", generated_data["status"]["position"]["altitude"]))
+                    },
+                    "telemetry": {
+                        "pressure": float(fetched_data.get("pressure", random.uniform(900.0, 1100.0))),
+                        "voltage": float(fetched_data.get("voltage", random.uniform(20.0, 30.0))),
+                        "heartbeat": fetched_data.get("heartbeat", random.choice([True, False])).lower() == 'true',
+                        "fuelConsumption": float(fetched_data.get("fuelconsumption", random.uniform(0.0, 10.0))),
+                        "fuelLevel": {
+                            "CH4": float(fetched_data.get("ch4", 0.0)),
+                            "LOX": float(fetched_data.get("lox", 0.0))
+                        },
+                        "estimatedTimeToFull": generated_data["status"]["telemetry"]["estimatedTimeToFull"]
+                    }
+                }
+            }
+
             producer.produce(topic, key=key, value=json.dumps(value))
             print(f"Produced message to topic {topic}: key = {key:12} value = {json.dumps(value):12}")
 
