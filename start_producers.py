@@ -1,7 +1,7 @@
 import subprocess
 import signal
-import os
 import time
+from producers.utils import ensure_topics_exist
 
 producer_scripts = [
     "producers/launch_site_producer.py",
@@ -15,12 +15,28 @@ producer_scripts = [
     "producers/events_producer.py"
 ]
 
+topics = [
+    "launchSite",
+    "weatherData",
+    "launchVehicle",
+    "payload",
+    "communicationSystems",
+    "security",
+    "padInfrastructure",
+    "operationalStatus",
+    "events"
+]
+
 processes = []
 online_producers = []
 failed_producers = []
 
 
 def log_status():
+    """
+    Log the status of all producers
+    :return:
+    """
     print(f"| {'Producer':<40} | {'Status':<10} |")
     print("|" + "-" * 53 + "|")
     for producer, status in online_producers:
@@ -33,6 +49,11 @@ def log_status():
 
 
 def start_producers():
+    """
+    Start all producers
+    :return:
+    """
+    ensure_topics_exist(topics)
     try:
         for script in producer_scripts:
             print(f"Starting {script}...")
